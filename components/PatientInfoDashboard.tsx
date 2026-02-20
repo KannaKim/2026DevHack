@@ -1,10 +1,10 @@
 import PatientHistory from "@/components/PatientHistory"
 
-export default function PatientInfoDashboard() {
+export default function PatientInfoDashboard({ patientID }: { patientID: string }) {
     return (
         <div>
-            <h1>Patient Info Dashboard</h1>
-            <PatientHistory />
+            <span> For PatientID: {patientID}</span>
+            <PatientHistory patientID={patientID} />
         </div>
     )
 }
