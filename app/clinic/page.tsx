@@ -1,11 +1,9 @@
 "use client"
 
-import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import PatientInfoDashboard from "@/components/PatientInfoDashboard"
 
-export default function ClinicPage() {
-    const searchParams = useSearchParams()
+export default function CinicPage() {
     const [search, setSearch] = useState('')
     const [submittedSearch, setSubmittedSearch] = useState('')
 
