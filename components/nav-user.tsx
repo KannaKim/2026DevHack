@@ -9,6 +9,7 @@ import {
 } from "@tabler/icons-react";
 
 import Link from "next/link";
+import users from "@/data/user";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
