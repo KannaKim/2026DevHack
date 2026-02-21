@@ -1,32 +1,40 @@
-import Link from "next/link";
+import { AppSidebar } from "@/components/app-sidebar"
+import { ChartAreaInteractive } from "@/components/chart-area-interactive"
+import { DataTable } from "@/components/data-table"
+import { SectionCards } from "@/components/section-cards"
+import { SiteHeader } from "@/components/site-header"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
 
-export default function DashboardPage() {
+import data from "./data.json"
+
+export default function Page() {
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 font-sans dark:bg-black">
-      <header className="border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <nav className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-black dark:text-zinc-50">
-            Dashboard
-          </h1>
-          <div className="flex gap-4">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/register"
-              className="text-sm font-medium text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              Register
-            </Link>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <SectionCards />
+              <div className="px-4 lg:px-6">
+                <ChartAreaInteractive />
+              </div>
+              <DataTable data={data} />
+            </div>
           </div>
-        </nav>
-      </header>
-      <main className="flex flex-1 items-center justify-center p-8">
-        <p className="text-zinc-500 dark:text-zinc-400">Dashboard content</p>
-      </main>
-    </div>
-  );
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }
