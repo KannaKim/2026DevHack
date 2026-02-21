@@ -1,8 +1,11 @@
 const users = [
   {
     id: 99,
-    name: "Hackathon Demo",
+    phin: "99",
+    password: "password",
+    name: "PJ",
     dob: "20000101",
+    conditions: ["Hypertension"],
     vaccines: [
       {
         name: "Tdap",

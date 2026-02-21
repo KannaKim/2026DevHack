@@ -1,11 +1,5 @@
-import users from "../data/user";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div>
-      {
-        // console.log(users);
-      }
-    </div>
-  );
+  redirect("/login");
 }
