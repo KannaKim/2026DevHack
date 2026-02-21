@@ -79,17 +79,17 @@ export default function LoginPage() {
     setClinicName("");
   };
 
-  const handleID = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  // const handleID = (e: React.MouseEvent<HTMLButtonElement>) => {
+  //   e.preventDefault();
 
-    console.log("Signing in with Gov ID as:", {
-      type: activeTab,
-    });
+  //   console.log("Signing in with Gov ID as:", {
+  //     type: activeTab,
+  //   });
 
-    // Redirect to index.html
-    window.location.href =
-      "https://l0plqt3p-5500.usw2.devtunnels.ms/index.html";
-  };
+  //   // Redirect to index.html
+  //   window.location.href =
+  //     "https://l0plqt3p-5500.usw2.devtunnels.ms/index.html";
+  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -322,7 +322,7 @@ export default function LoginPage() {
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
             <Button
-              onClick={handleID}
+              // onClick={handleID}
               type="button"
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 rounded-xl font-semibold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
             >
