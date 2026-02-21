@@ -22,12 +22,12 @@ export default function Page() {
         if (data.success) {
           setEligibilityData(data.data);
           setError(null);
-          
+
           // Animate content entry
           gsap.fromTo(
             containerRef.current,
             { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+            { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
           );
         } else {
           setError(data.message || "Failed to load eligibility data");
@@ -50,7 +50,9 @@ export default function Page() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground font-medium">Loading your immunization records...</p>
+          <p className="text-muted-foreground font-medium">
+            Loading your immunization records...
+          </p>
         </div>
       </div>
     );

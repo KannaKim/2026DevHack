@@ -48,7 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       gsap.fromTo(
         sidebarRef.current.querySelectorAll(".sidebar-item"),
         { opacity: 0, x: -20 },
-        { opacity: 1, x: 0, stagger: 0.1, duration: 0.5, ease: "power2.out" }
+        { opacity: 1, x: 0, stagger: 0.1, duration: 0.5, ease: "power2.out" },
       );
     }
   }, []);

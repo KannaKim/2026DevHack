@@ -29,7 +29,7 @@ export default function DoctorAccessPage() {
     gsap.fromTo(
       cardRef.current,
       { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
     );
   }, []);
 
@@ -71,7 +71,7 @@ export default function DoctorAccessPage() {
       gsap.fromTo(
         tokenBoxRef.current,
         { opacity: 0, scale: 0.9 },
-        { opacity: 1, scale: 1, duration: 0.5, ease: "back.out" }
+        { opacity: 1, scale: 1, duration: 0.5, ease: "back.out" },
       );
     } finally {
       setLoading(false);
@@ -121,10 +121,7 @@ export default function DoctorAccessPage() {
   };
 
   return (
-    <div
-      ref={cardRef}
-      className="max-w-2xl w-full"
-    >
+    <div ref={cardRef} className="max-w-2xl w-full">
       <Card className="rounded-3xl shadow-xl border-0 bg-gradient-to-br from-white to-emerald-50/50 hover:shadow-2xl transition-all duration-300">
         <CardHeader className="pb-4">
           <CardTitle className="text-3xl font-bold flex items-center gap-3">
@@ -134,7 +131,8 @@ export default function DoctorAccessPage() {
             Temporary Doctor Access
           </CardTitle>
           <p className="text-gray-600 mt-3">
-            Generate a secure, time-limited access token for clinics to view your medical records. Tokens expire after 24 hours.
+            Generate a secure, time-limited access token for clinics to view
+            your medical records. Tokens expire after 24 hours.
           </p>
         </CardHeader>
 
@@ -142,7 +140,8 @@ export default function DoctorAccessPage() {
           {!token ? (
             <div className="space-y-4 p-6 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl border-2 border-dashed border-blue-300">
               <p className="text-gray-700 text-sm font-medium">
-                ✨ No active access token. Generate one now to share your records safely.
+                ✨ No active access token. Generate one now to share your
+                records safely.
               </p>
 
               <Button
@@ -167,7 +166,7 @@ export default function DoctorAccessPage() {
             <div ref={tokenBoxRef} className="space-y-5">
               <div className="p-5 bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl border-2 border-gray-700 relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                
+
                 <div className="relative flex items-center justify-between gap-4">
                   <span className="text-lg font-mono tracking-wider text-emerald-400 font-semibold breaks-all">
                     {token}
@@ -194,15 +193,21 @@ export default function DoctorAccessPage() {
                 <div className="p-4 bg-emerald-50 rounded-xl border-2 border-emerald-200">
                   <div className="flex items-center gap-2 text-emerald-700 mb-2">
                     <CheckCircle className="w-4 h-4" />
-                    <span className="text-xs font-semibold uppercase">Active</span>
+                    <span className="text-xs font-semibold uppercase">
+                      Active
+                    </span>
                   </div>
-                  <p className="text-sm text-gray-600">Token is currently active</p>
+                  <p className="text-sm text-gray-600">
+                    Token is currently active
+                  </p>
                 </div>
 
                 <div className="p-4 bg-orange-50 rounded-xl border-2 border-orange-200">
                   <div className="flex items-center gap-2 text-orange-700 mb-2">
                     <Clock className="w-4 h-4" />
-                    <span className="text-xs font-semibold uppercase">Expires</span>
+                    <span className="text-xs font-semibold uppercase">
+                      Expires
+                    </span>
                   </div>
                   {expiresAt && (
                     <p className="text-xs text-gray-600 font-mono">

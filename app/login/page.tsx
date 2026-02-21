@@ -35,7 +35,7 @@ export default function LoginPage() {
     gsap.fromTo(
       cardRef.current,
       { opacity: 0, y: 30, scale: 0.95 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out" }
+      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out" },
     );
   }, []);
 
@@ -44,7 +44,7 @@ export default function LoginPage() {
       gsap.fromTo(
         formRef.current.querySelectorAll(".form-field"),
         { opacity: 0, x: -20 },
-        { opacity: 1, x: 0, stagger: 0.1, duration: 0.5, ease: "power2.out" }
+        { opacity: 1, x: 0, stagger: 0.1, duration: 0.5, ease: "power2.out" },
       );
     }
   }, [activeTab, authMode]);
@@ -284,7 +284,9 @@ export default function LoginPage() {
                       </div>
 
                       <div className="form-field space-y-2">
-                        <Label className="text-gray-700 font-semibold">Full Name</Label>
+                        <Label className="text-gray-700 font-semibold">
+                          Full Name
+                        </Label>
                         <Input
                           type="text"
                           placeholder="Enter your full name"
@@ -296,7 +298,9 @@ export default function LoginPage() {
                       </div>
 
                       <div className="form-field space-y-2">
-                        <Label className="text-gray-700 font-semibold">Date of Birth</Label>
+                        <Label className="text-gray-700 font-semibold">
+                          Date of Birth
+                        </Label>
                         <Input
                           type="date"
                           value={dob}
@@ -323,7 +327,9 @@ export default function LoginPage() {
                       </div>
 
                       <div className="form-field space-y-2">
-                        <Label className="text-gray-700 font-semibold">Clinic Name</Label>
+                        <Label className="text-gray-700 font-semibold">
+                          Clinic Name
+                        </Label>
                         <Input
                           type="text"
                           placeholder="Enter clinic name"

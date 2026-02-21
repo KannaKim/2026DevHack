@@ -40,7 +40,7 @@ export default function FamilyPage() {
     gsap.fromTo(
       cardRef.current,
       { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
     );
   }, []);
 
@@ -50,7 +50,14 @@ export default function FamilyPage() {
       gsap.fromTo(
         items,
         { opacity: 0, x: -20, scale: 0.95 },
-        { opacity: 1, x: 0, scale: 1, stagger: 0.1, duration: 0.5, ease: "back.out" }
+        {
+          opacity: 1,
+          x: 0,
+          scale: 1,
+          stagger: 0.1,
+          duration: 0.5,
+          ease: "back.out",
+        },
       );
     }
   }, [members]);
@@ -75,7 +82,7 @@ export default function FamilyPage() {
       ];
       const nextMember = hardcodedNames[members.length % hardcodedNames.length];
       const name = nextMember.name;
-      
+
       setMembers((prev) => {
         return [
           ...prev,
@@ -125,7 +132,10 @@ export default function FamilyPage() {
               className="flex flex-col sm:flex-row gap-3 p-4 bg-white/50 rounded-2xl border-2 border-dashed border-blue-200 hover:border-blue-400 transition-all duration-300"
             >
               <div className="flex-1 space-y-2">
-                <Label htmlFor="healthId" className="font-semibold text-gray-700">
+                <Label
+                  htmlFor="healthId"
+                  className="font-semibold text-gray-700"
+                >
                   Child's Health ID (PHIN)
                 </Label>
                 <Input
@@ -161,7 +171,8 @@ export default function FamilyPage() {
             <div className="flex items-center gap-3 text-sm text-gray-700 bg-blue-50 p-4 rounded-xl border border-blue-200/50">
               <Bell className="size-5 text-blue-600 flex-shrink-0" />
               <span>
-                Everyone in this group will receive vaccination and appointment reminders automatically.
+                Everyone in this group will receive vaccination and appointment
+                reminders automatically.
               </span>
             </div>
           </CardContent>
@@ -218,7 +229,8 @@ export default function FamilyPage() {
             <UserPlus className="size-8 text-gray-400" />
           </div>
           <p className="text-gray-500 font-medium">
-            No family members added yet. Add your children to get them reminders.
+            No family members added yet. Add your children to get them
+            reminders.
           </p>
         </div>
       )}
