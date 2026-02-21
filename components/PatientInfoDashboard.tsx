@@ -6,6 +6,20 @@ import PatientHistory from "@/components/PatientHistory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+type Vaccine = {
+  name: string;
+  dosesReceived: number;
+  lastDoseDate: string | null;
+};
+
+type Patient = {
+  id: number;
+  name: string;
+  dob: string;
+  conditions?: string[]; // optional
+  vaccines: Vaccine[];
+};
+
 function calculateAge(dob?: string) {
   if (!dob) return "—";
 
@@ -36,7 +50,29 @@ function calculateAge(dob?: string) {
   return age;
 }
 
-export default function PatientInfoDashboard({ patient }: { patient: any }) {
+function formatDOB(dob?: string) {
+  if (!dob) return "Not available";
+
+  if (!/^\d{8}$/.test(dob)) return "Not available";
+
+  const year = Number(dob.substring(0, 4));
+  const month = Number(dob.substring(4, 6)) - 1;
+  const day = Number(dob.substring(6, 8));
+
+  const date = new Date(year, month, day);
+
+  return date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+export default function PatientInfoDashboard({
+  patient,
+}: {
+  patient: Patient;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const age = calculateAge(patient.dob);
@@ -71,7 +107,7 @@ export default function PatientInfoDashboard({ patient }: { patient: any }) {
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Date of Birth</p>
               <p className="text-lg font-medium">
-                {patient.dob || "Not available"}
+                {formatDOB(patient.dob) || "Not available"}
               </p>
             </div>
 

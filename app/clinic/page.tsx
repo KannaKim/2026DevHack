@@ -14,11 +14,33 @@ export default function ClinicPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const foundPatient = users.find((u) => String(u.id) === search.trim());
+    const stored = localStorage.getItem("tempAccess");
+
+    if (!stored) {
+      setError("No active access token found.");
+      return;
+    }
+
+    const parsed = JSON.parse(stored);
+
+    // Check expiry
+    if (parsed.expiresAt < Date.now()) {
+      localStorage.removeItem("tempAccess");
+      setError("Access token has expired.");
+      return;
+    }
+
+    // Check token match
+    if (parsed.token !== search.trim()) {
+      setError("Invalid access token.");
+      return;
+    }
+
+    // Find patient using patientId
+    const foundPatient = users.find((u) => u.id === parsed.patientId);
 
     if (!foundPatient) {
       setError("Patient not found.");
-      setPatient(null);
       return;
     }
 
@@ -93,7 +115,7 @@ export default function ClinicPage() {
 
         {patient && (
           <div className="w-full max-w-6xl px-4 mt-6 pb-12">
-            <PatientInfoDashboard patient={String(patient.id)} />
+            <PatientInfoDashboard patient={patient} />
           </div>
         )}
       </div>
