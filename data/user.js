@@ -3,7 +3,7 @@ const users = [
     id: 99,
     name: "PJ",
     dob: "20000101",
-    // conditions: ["Hypertension"],
+    conditions: ["Hypertension"],
     vaccines: [
       {
         name: "Tdap",

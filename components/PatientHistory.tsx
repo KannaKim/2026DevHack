@@ -61,8 +61,14 @@ export const getStubHistory = (patientID: string): HistoryRecord[] => {
   ];
 };
 
-export default function PatientHistory({ patientID }: { patientID: string }) {
-  const history = getStubHistory(patientID);
+export default function PatientHistory({
+  history,
+  patientID,
+}: {
+  history: HistoryRecord[];
+  patientID: string;
+}) {
+  // const history = getStubHistory(patientID);
 
   return (
     <div className="mt-6">
