@@ -35,7 +35,7 @@ export default function LoginPage() {
     gsap.fromTo(
       cardRef.current,
       { opacity: 0, y: 30, scale: 0.95 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out" },
+      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out" }
     );
   }, []);
 
@@ -44,7 +44,7 @@ export default function LoginPage() {
       gsap.fromTo(
         formRef.current.querySelectorAll(".form-field"),
         { opacity: 0, x: -20 },
-        { opacity: 1, x: 0, stagger: 0.1, duration: 0.5, ease: "power2.out" },
+        { opacity: 1, x: 0, stagger: 0.1, duration: 0.5, ease: "power2.out" }
       );
     }
   }, [activeTab, authMode]);
@@ -160,13 +160,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-
-      <div ref={cardRef} className="relative z-10">
-        <Card className="w-full max-w-md shadow-2xl rounded-3xl border-0 overflow-hidden bg-white/95 backdrop-blur">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 sm:p-6">
+      <div ref={cardRef} className="w-full max-w-md sm:max-w-lg min-w-0">
+        <Card className="w-full shadow-md rounded-2xl border overflow-hidden bg-card">
           {/* Top Tabs with Icons */}
           <div className="flex border-b border-gray-200">
             <button
@@ -178,7 +174,7 @@ export default function LoginPage() {
                 "w-1/2 py-4 font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-inner",
                 activeTab === "patient"
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100",
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               )}
             >
               <User className="w-4 h-4" />
@@ -194,7 +190,7 @@ export default function LoginPage() {
                 "w-1/2 py-4 font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-inner",
                 activeTab === "clinic"
                   ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100",
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               )}
             >
               <Building2 className="w-4 h-4" />
