@@ -1,5 +1,6 @@
+import catalog from "@/lib/mock/vaccine"; // your vaccine.tsx data array
 import { parseDob, yearsBetween, addDays, addYears, iso } from "@/lib/date";
-import { ruleByName } from "@/lib/vaccines/catalog";
+import { findUserHistoryForRule } from "@/lib/vaccines/history";
 
 type User = {
   id: number;
@@ -22,18 +23,23 @@ export type VaccineResult = {
   reason: string;
 };
 
-export function evaluateUserVaccines(user: User, today = new Date()): VaccineResult[] {
+export function evaluateUserVaccinesFromCatalog(user: User, today = new Date()): VaccineResult[] {
   const dob = parseDob(user.dob);
   const ageYears = yearsBetween(dob, today);
 
-  return user.vaccines.map((v) => {
-    const rule = ruleByName.get(v.name.toLowerCase());
-    if (!rule) {
-      return { userId: user.id, vaccineName: v.name, status: "notEligible", dueDate: null, reason: "No rule found." };
-    }
+  return catalog.map((rule: any) => {
+    // merge in user history (or default to "no history")
+    const hist = findUserHistoryForRule(user.vaccines ?? [], rule.name);
+    const v = {
+      name: rule.name, // important: use catalog name as the canonical output name
+      dosesReceived: hist?.dosesReceived ?? 0,
+      lastDoseDate: hist?.lastDoseDate ?? null,
+    };
 
+    // --- eligibility checks (same as your current code) ---
     const minAgeYears = rule.eligibility?.minAgeYears;
     const maxAgeYears = rule.eligibility?.maxAgeYears;
+
     if (typeof minAgeYears === "number" && ageYears < minAgeYears) {
       return { userId: user.id, vaccineName: v.name, status: "notEligible", dueDate: null, reason: `Under minimum age (${minAgeYears}).` };
     }
@@ -46,6 +52,7 @@ export function evaluateUserVaccines(user: User, today = new Date()): VaccineRes
       const isHighRisk =
         !!user.immunocompromised ||
         (user.conditions ?? []).some((c) => (rule.riskOverride ?? []).includes(c));
+
       if (ageYears < 65 && !isHighRisk) {
         return { userId: user.id, vaccineName: v.name, status: "notEligible", dueDate: null, reason: "Not 65+ and no high-risk override." };
       }
@@ -56,10 +63,8 @@ export function evaluateUserVaccines(user: User, today = new Date()): VaccineRes
 
     // Tdap booster + pregnancy priority window
     if (rule.code === "TDAP" && v.lastDoseDate) {
-      // Booster every 10 years :contentReference[oaicite:7]{index=7}
       due = addYears(new Date(v.lastDoseDate + "T00:00:00"), rule.booster?.intervalYears ?? 10);
 
-      // If pregnant and in recommended weeks, treat as eligible now :contentReference[oaicite:8]{index=8}
       const w = user.gestationWeeks;
       if (user.pregnant && typeof w === "number") {
         const start = rule.pregnancyRule?.recommendedWeeksStart ?? 27;
@@ -79,7 +84,6 @@ export function evaluateUserVaccines(user: User, today = new Date()): VaccineRes
         return { userId: user.id, vaccineName: v.name, status: "completed", dueDate: null, reason: "Series complete." };
       }
 
-      // recommended age → due date
       due = new Date(dob);
       if (typeof nextDose.recommendedAgeMonths === "number") {
         due.setMonth(due.getMonth() + nextDose.recommendedAgeMonths);
@@ -89,7 +93,6 @@ export function evaluateUserVaccines(user: User, today = new Date()): VaccineRes
         if (frac === 0.5) due.setMonth(due.getMonth() + 6);
       }
 
-      // interval rule: if lastDose exists, enforce min spacing :contentReference[oaicite:9]{index=9}
       if (v.lastDoseDate && rule.intervalRules?.minDaysBetweenDoses) {
         const minNext = addDays(new Date(v.lastDoseDate + "T00:00:00"), rule.intervalRules.minDaysBetweenDoses);
         if (minNext > due) due = minNext;
@@ -108,6 +111,7 @@ export function evaluateUserVaccines(user: User, today = new Date()): VaccineRes
 
     if (daysUntil < 0) return { userId: user.id, vaccineName: v.name, status: "overdue", dueDate: dueIso, reason: `Overdue since ${dueIso}.` };
     if (daysUntil <= 30) return { userId: user.id, vaccineName: v.name, status: "dueSoon", dueDate: dueIso, reason: `Due on ${dueIso} (≤30 days).` };
+
     return { userId: user.id, vaccineName: v.name, status: "completed", dueDate: dueIso, reason: `Not due soon (due ${dueIso}).` };
   });
 }

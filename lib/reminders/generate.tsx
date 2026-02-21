@@ -1,4 +1,3 @@
-// lib/reminders/generate.ts
 import type { VaccineResult } from "./eligibility";
 
 export type Reminder = {

@@ -6,7 +6,7 @@ import users from "@/lib/mock/users";
 import NotificationPrefsDropdown, { NotificationPrefs } from "@/components/ui/NotificationPrefsDropdown";
 import { prefsToChannels, prefsToTypes } from "@/lib/reminders/prefsMap";
 
-import { evaluateUserVaccines } from "@/lib/reminders/eligibility";
+import { evaluateUserVaccinesFromCatalog } from "@/lib/reminders/eligibility";
 import { generateReminders } from "@/lib/reminders/generate";
 import { dedupe } from "@/lib/reminders/sentLog";
 import { iso } from "@/lib/date";
@@ -33,7 +33,6 @@ export default function DashboardPage() {
     const [reminders, setReminders] = React.useState<any[]>([]);
 
 
-
     React.useEffect(() => {
         if (!prefs) return;
 
@@ -41,7 +40,7 @@ export default function DashboardPage() {
         const today = new Date();
         const todayIso = iso(today);
 
-        const results = evaluateUserVaccines(user, today);
+        const results = evaluateUserVaccinesFromCatalog(user, today);
 
         const allowedTypes = new Set(prefsToTypes(prefs));
         const channels = prefsToChannels(prefs);

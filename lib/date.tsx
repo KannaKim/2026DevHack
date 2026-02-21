@@ -1,4 +1,4 @@
-// lib/date.ts
+
 export function parseDob(dob: string): Date {
   // supports "YYYYMMDD" or "YYYY-MM-DD"
   if (/^\d{8}$/.test(dob)) {
