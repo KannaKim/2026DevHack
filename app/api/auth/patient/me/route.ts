@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import users from "@/data/user";
 
-function toPatientResponse(user: any) {
+function toPatientResponse(user: Record<string, unknown>) {
   return {
     _id: String(user.id),
     phin: user.phin,
@@ -10,7 +10,7 @@ function toPatientResponse(user: any) {
     dob: user.dob,
     conditions: user.conditions || [],
     vaccines: user.vaccines || [],
-    medicalHistory: user.medicalHistory || [],
+    medicalHistory: (user.medicalHistory as unknown[] | undefined) || [],
   };
 }
 
@@ -72,13 +72,17 @@ export async function PUT(req: Request) {
       );
     }
 
+    const userWithHistory = user as typeof user & {
+      medicalHistory?: unknown[];
+    };
     const merged = {
       ...user,
       name: body.name ?? user.name,
       dob: body.dob ?? user.dob,
       conditions: body.conditions ?? user.conditions,
       vaccines: body.vaccines ?? user.vaccines,
-      medicalHistory: body.medicalHistory ?? user.medicalHistory,
+      medicalHistory:
+        body.medicalHistory ?? userWithHistory.medicalHistory ?? [],
     };
 
     return NextResponse.json({

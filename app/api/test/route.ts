@@ -44,6 +44,7 @@ export async function GET(request: Request) {
       );
     }
 
+    const u = user as typeof user & { medicalHistory?: unknown[] };
     const patient = {
       _id: String(user.id),
       phin: user.phin,
@@ -51,7 +52,7 @@ export async function GET(request: Request) {
       dob: user.dob,
       conditions: user.conditions || [],
       vaccines: user.vaccines || [],
-      medicalHistory: user.medicalHistory || [],
+      medicalHistory: u.medicalHistory || [],
     };
 
     return NextResponse.json({ success: true, data: patient });

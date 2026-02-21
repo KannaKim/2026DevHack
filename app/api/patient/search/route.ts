@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       );
     }
 
+    const u = user as typeof user & { medicalHistory?: unknown[] };
     return NextResponse.json({
       success: true,
       data: {
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
         dob: user.dob,
         conditions: user.conditions || [],
         vaccines: user.vaccines || [],
-        medicalHistory: user.medicalHistory || [],
+        medicalHistory: u.medicalHistory || [],
       },
     });
   } catch (error) {

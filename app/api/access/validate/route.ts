@@ -42,6 +42,9 @@ export async function POST(req: Request) {
       );
     }
 
+    const userWithHistory = user as typeof user & {
+      medicalHistory?: unknown[];
+    };
     const patientData = {
       _id: String(user.id),
       phin: user.phin,
@@ -49,7 +52,7 @@ export async function POST(req: Request) {
       dob: user.dob,
       conditions: user.conditions || [],
       vaccines: user.vaccines || [],
-      medicalHistory: user.medicalHistory || [],
+      medicalHistory: userWithHistory.medicalHistory || [],
     };
 
     return NextResponse.json({
