@@ -5,7 +5,7 @@ import users from "@/data/user";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const token = body.token;
+    const token = typeof body.token === "string" ? body.token.trim() : "";
 
     if (!token) {
       return NextResponse.json(

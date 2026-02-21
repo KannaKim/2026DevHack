@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, User, Mail, Lock, Key, ArrowRight } from "lucide-react";
+import { Building2, User, Lock, Key, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
+import gsap from "gsap";
 
 type TabType = "patient" | "clinic";
 type AuthMode = "login" | "register";
@@ -15,27 +16,48 @@ type AuthMode = "login" | "register";
 export default function LoginPage() {
   const [activeTab, setActiveTab] = useState<TabType>("patient");
   const [authMode, setAuthMode] = useState<AuthMode>("login");
+  const cardRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  // Form state
   const [phin, setPhin] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [clinicName, setClinicName] = useState("");
   const [dob, setDob] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isPatient = activeTab === "patient";
   const isLogin = authMode === "login";
   const router = useRouter();
 
+  useEffect(() => {
+    gsap.fromTo(
+      cardRef.current,
+      { opacity: 0, y: 30, scale: 0.95 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out" }
+    );
+  }, []);
+
+  useEffect(() => {
+    if (formRef.current) {
+      gsap.fromTo(
+        formRef.current.querySelectorAll(".form-field"),
+        { opacity: 0, x: -20 },
+        { opacity: 1, x: 0, stagger: 0.1, duration: 0.5, ease: "power2.out" }
+      );
+    }
+  }, [activeTab, authMode]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate password confirmation for registration
     if (!isLogin && password !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       if (isLogin) {
@@ -43,41 +65,38 @@ export default function LoginPage() {
           const res = await fetch("/api/auth/patient/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              phin,
-              password,
-            }),
+            body: JSON.stringify({ phin, password }),
           });
 
           const data = await res.json();
 
           if (!data.success) {
             alert(data.message);
+            setIsSubmitting(false);
             return;
           }
 
-          router.push("/dashboard");
+          gsap.to(cardRef.current, { opacity: 0, scale: 0.9, duration: 0.5 });
+          setTimeout(() => router.push("/dashboard"), 300);
         } else {
           const res = await fetch("/api/auth/clinic/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              clinicId: username,
-              password,
-            }),
+            body: JSON.stringify({ clinicId: username, password }),
           });
 
           const data = await res.json();
 
           if (!data.success) {
             alert(data.message);
+            setIsSubmitting(false);
             return;
           }
 
-          router.push("/clinic");
+          gsap.to(cardRef.current, { opacity: 0, scale: 0.9, duration: 0.5 });
+          setTimeout(() => router.push("/clinic"), 300);
         }
       } else {
-        // Registration
         if (activeTab === "patient") {
           const res = await fetch("/api/auth/patient/register", {
             method: "POST",
@@ -94,10 +113,12 @@ export default function LoginPage() {
           const data = await res.json();
           if (!data.success) {
             alert(data.message);
+            setIsSubmitting(false);
             return;
           }
 
-          router.push("/dashboard");
+          gsap.to(cardRef.current, { opacity: 0, scale: 0.9, duration: 0.5 });
+          setTimeout(() => router.push("/dashboard"), 300);
         } else {
           const res = await fetch("/api/auth/clinic/register", {
             method: "POST",
@@ -106,26 +127,30 @@ export default function LoginPage() {
               clinicId: username,
               password,
               name: clinicName,
+              province: "Manitoba",
             }),
           });
 
           const data = await res.json();
+
           if (!data.success) {
             alert(data.message);
+            setIsSubmitting(false);
             return;
           }
 
-          router.push("/clinic");
+          gsap.to(cardRef.current, { opacity: 0, scale: 0.9, duration: 0.5 });
+          setTimeout(() => router.push("/clinic"), 300);
         }
       }
     } catch (error) {
       console.error(error);
+      setIsSubmitting(false);
     }
   };
 
   const toggleMode = () => {
     setAuthMode(isLogin ? "register" : "login");
-    // Clear form when switching modes
     setPhin("");
     setUsername("");
     setPassword("");
@@ -135,271 +160,243 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md shadow-2xl rounded-2xl border-0 overflow-hidden">
-        {/* Top Tabs with Icons */}
-        <div className="flex">
-          <button
-            onClick={() => {
-              setActiveTab("patient");
-              setAuthMode("login"); // Reset to login when switching tabs
-            }}
-            className={clsx(
-              "w-1/2 py-4 font-semibold flex items-center justify-center gap-2 transition-all duration-300",
-              activeTab === "patient"
-                ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200",
-            )}
-          >
-            <User className="w-4 h-4" />
-            Patient
-          </button>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
 
-          <button
-            onClick={() => {
-              setActiveTab("clinic");
-              setAuthMode("login"); // Reset to login when switching tabs
-            }}
-            className={clsx(
-              "w-1/2 py-4 font-semibold flex items-center justify-center gap-2 transition-all duration-300",
-              activeTab === "clinic"
-                ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200",
-            )}
-          >
-            <Building2 className="w-4 h-4" />
-            Clinic
-          </button>
-        </div>
+      <div ref={cardRef} className="relative z-10">
+        <Card className="w-full max-w-md shadow-2xl rounded-3xl border-0 overflow-hidden bg-white/95 backdrop-blur">
+          {/* Top Tabs with Icons */}
+          <div className="flex border-b border-gray-200">
+            <button
+              onClick={() => {
+                setActiveTab("patient");
+                setAuthMode("login");
+              }}
+              className={clsx(
+                "w-1/2 py-4 font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-inner",
+                activeTab === "patient"
+                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100",
+              )}
+            >
+              <User className="w-4 h-4" />
+              Patient
+            </button>
 
-        <CardContent className="p-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              {isLogin ? "Welcome Back" : "Create Account"}
-            </h2>
-            <p className="text-sm text-gray-500 mt-2">
-              {isLogin
-                ? `Sign in to your ${activeTab} account`
-                : `Register as a new ${activeTab}`}
-            </p>
+            <button
+              onClick={() => {
+                setActiveTab("clinic");
+                setAuthMode("login");
+              }}
+              className={clsx(
+                "w-1/2 py-4 font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-inner",
+                activeTab === "clinic"
+                  ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100",
+              )}
+            >
+              <Building2 className="w-4 h-4" />
+              Clinic
+            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Dynamic fields based on tab and mode */}
-            {isLogin ? (
-              // LOGIN FIELDS
-              <>
-                {isPatient ? (
-                  <div className="space-y-2 group">
-                    <Label className="text-gray-700 flex items-center gap-2">
-                      <Key className="w-4 h-4 text-blue-600" />
-                      PHIN (9-digit Manitoba Health ID)
-                    </Label>
-                    <Input
-                      type="text"
-                      placeholder="Enter your PHIN"
-                      value={phin}
-                      onChange={(e) => setPhin(e.target.value)}
-                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
-                      required
-                    />
-                  </div>
-                ) : (
-                  <div className="space-y-2 group">
-                    <Label className="text-gray-700 flex items-center gap-2">
-                      <User className="w-4 h-4 text-blue-600" />
-                      Clinic ID
-                    </Label>
-                    <Input
-                      type="text"
-                      placeholder="Enter your Clinic ID"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
-                      required
-                    />
-                  </div>
-                )}
+          <CardContent className="p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-fade-in">
+                {isLogin ? "Welcome Back" : "Create Account"}
+              </h2>
+              <p className="text-sm text-gray-500 mt-2">
+                {isLogin
+                  ? `Sign in to your ${activeTab} account`
+                  : `Register as a new ${activeTab}`}
+              </p>
+            </div>
 
-                <div className="space-y-2">
-                  <Label className="text-gray-700 flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-blue-600" />
-                    Password
-                  </Label>
-                  <Input
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
-                    required
-                  />
-                </div>
-
-                <div className="text-right">
-                  <button
-                    type="button"
-                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-all"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-              </>
-            ) : (
-              // REGISTRATION FIELDS
-              <>
-                {isPatient ? (
-                  // Patient Registration
-                  <>
-                    <div className="space-y-2 group">
-                      <Label className="text-gray-700 flex items-center gap-2">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+              {isLogin ? (
+                <>
+                  {isPatient ? (
+                    <div className="form-field space-y-2 group">
+                      <Label className="text-gray-700 flex items-center gap-2 font-semibold">
                         <Key className="w-4 h-4 text-blue-600" />
-                        PHIN (9-digit Manitoba Health ID)
+                        PHIN (9-digit ID)
                       </Label>
                       <Input
                         type="text"
                         placeholder="Enter your PHIN"
                         value={phin}
                         onChange={(e) => setPhin(e.target.value)}
-                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
+                        className="border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200"
                         required
                       />
                     </div>
-
-                    <div className="space-y-2">
-                      <Label>Date of Birth</Label>
-                      <Input
-                        type="date"
-                        value={dob}
-                        onChange={(e) => setDob(e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-gray-700 flex items-center gap-2">
-                        <User className="w-4 h-4 text-blue-600" />
-                        Full Name
-                      </Label>
-                      <Input
-                        type="text"
-                        placeholder="Enter your full name"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
-                        required
-                      />
-                    </div>
-                  </>
-                ) : (
-                  // Clinic Registration
-                  <>
-                    <div className="space-y-2">
-                      <Label className="text-gray-700 flex items-center gap-2">
+                  ) : (
+                    <div className="form-field space-y-2">
+                      <Label className="text-gray-700 flex items-center gap-2 font-semibold">
                         <Building2 className="w-4 h-4 text-blue-600" />
-                        Clinic Name
-                      </Label>
-                      <Input
-                        type="text"
-                        placeholder="Enter clinic name"
-                        value={clinicName}
-                        onChange={(e) => setClinicName(e.target.value)}
-                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-gray-700 flex items-center gap-2">
-                        <User className="w-4 h-4 text-blue-600" />
                         Clinic ID
                       </Label>
                       <Input
                         type="text"
-                        placeholder="Provide your Clinic ID"
+                        placeholder="Enter your clinic ID"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
+                        className="border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200"
                         required
                       />
                     </div>
+                  )}
+
+                  <div className="form-field space-y-2">
+                    <Label className="text-gray-700 flex items-center gap-2 font-semibold">
+                      <Lock className="w-4 h-4 text-blue-600" />
+                      Password
+                    </Label>
+                    <Input
+                      type="password"
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200"
+                      required
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  {isPatient ? (
+                    <>
+                      <div className="form-field space-y-2">
+                        <Label className="text-gray-700 flex items-center gap-2 font-semibold">
+                          <Key className="w-4 h-4 text-blue-600" />
+                          PHIN
+                        </Label>
+                        <Input
+                          type="text"
+                          placeholder="Enter your PHIN"
+                          value={phin}
+                          onChange={(e) => setPhin(e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200"
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field space-y-2">
+                        <Label className="text-gray-700 font-semibold">Full Name</Label>
+                        <Input
+                          type="text"
+                          placeholder="Enter your full name"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200"
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field space-y-2">
+                        <Label className="text-gray-700 font-semibold">Date of Birth</Label>
+                        <Input
+                          type="date"
+                          value={dob}
+                          onChange={(e) => setDob(e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="form-field space-y-2">
+                        <Label className="text-gray-700 flex items-center gap-2 font-semibold">
+                          <Building2 className="w-4 h-4 text-blue-600" />
+                          Clinic ID
+                        </Label>
+                        <Input
+                          type="text"
+                          placeholder="Enter clinic ID"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200"
+                          required
+                        />
+                      </div>
+
+                      <div className="form-field space-y-2">
+                        <Label className="text-gray-700 font-semibold">Clinic Name</Label>
+                        <Input
+                          type="text"
+                          placeholder="Enter clinic name"
+                          value={clinicName}
+                          onChange={(e) => setClinicName(e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200"
+                          required
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div className="form-field space-y-2">
+                    <Label className="text-gray-700 flex items-center gap-2 font-semibold">
+                      <Lock className="w-4 h-4 text-blue-600" />
+                      Password
+                    </Label>
+                    <Input
+                      type="password"
+                      placeholder="Create password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-field space-y-2">
+                    <Label className="text-gray-700 flex items-center gap-2 font-semibold">
+                      <Lock className="w-4 h-4 text-blue-600" />
+                      Confirm Password
+                    </Label>
+                    <Input
+                      type="password"
+                      placeholder="Confirm password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200"
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    {isLogin ? "Sign In" : "Create Account"}
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
+              </Button>
+            </form>
 
-                {/* Common registration fields */}
-                <div className="space-y-2">
-                  <Label className="text-gray-700 flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-blue-600" />
-                    Password
-                  </Label>
-                  <Input
-                    type="password"
-                    placeholder="Create a password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-gray-700 flex items-center gap-2">
-                    <Key className="w-4 h-4 text-blue-600" />
-                    Confirm Password
-                  </Label>
-                  <Input
-                    type="password"
-                    placeholder="Confirm your password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={clsx(
-                      "border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all",
-                      confirmPassword &&
-                        password !== confirmPassword &&
-                        "border-red-500 focus:border-red-500",
-                    )}
-                    required
-                  />
-                  {confirmPassword && password !== confirmPassword && (
-                    <p className="text-xs text-red-500 mt-1">
-                      Passwords don't match
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 rounded-xl font-semibold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-            >
-              {isLogin ? "Sign In" : "Create Account"}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">
-                  {isLogin ? "New here?" : "Already have an account?"}
-                </span>
-              </div>
+            <div className="mt-6 text-center">
+              <button
+                onClick={toggleMode}
+                className="text-sm text-gray-600 hover:text-blue-600 transition-colors duration-200 font-medium"
+              >
+                {isLogin
+                  ? `Don't have an account? Sign up`
+                  : `Already have an account? Sign in`}
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={toggleMode}
-              className="w-full text-center text-sm text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              <span className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-                {isLogin ? "Create an account" : "Sign in to existing account"}
-              </span>
-            </button>
-          </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

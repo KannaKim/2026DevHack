@@ -1,14 +1,14 @@
 "use client";
 
 import * as React from "react";
+import { useEffect, useRef } from "react";
 import { IconInnerShadowTop } from "@tabler/icons-react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import { BookPlus } from "lucide-react";
-import { MousePointer2 } from "lucide-react";
-import { BookUser } from "lucide-react";
+import { BookPlus, MousePointer2, BookUser } from "lucide-react";
 import Link from "next/link";
 import { useAuthenticatedUser } from "@/hooks/useAuthenticatedUser";
+import gsap from "gsap";
 
 import {
   Sidebar,
@@ -40,6 +40,18 @@ const navMain = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuthenticatedUser();
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Animate sidebar items on mount
+    if (sidebarRef.current) {
+      gsap.fromTo(
+        sidebarRef.current.querySelectorAll(".sidebar-item"),
+        { opacity: 0, x: -20 },
+        { opacity: 1, x: 0, stagger: 0.1, duration: 0.5, ease: "power2.out" }
+      );
+    }
+  }, []);
 
   const userData = {
     name: user?.name || "Patient",
@@ -48,10 +60,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar ref={sidebarRef} collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>
+          <SidebarMenuItem className="sidebar-item">
             <SidebarMenuButton asChild>
               <Link href="/dashboard">
                 <IconInnerShadowTop className="w-5 h-5" />
@@ -61,7 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="sidebar-item">
         <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>

@@ -10,16 +10,21 @@ export interface StoredAccess {
 const store = new Map<string, StoredAccess>();
 
 export function saveAccess(access: StoredAccess) {
-  store.set(access.token, access);
+  const key = access.token.trim();
+  store.set(key, { ...access, token: key });
 }
 
 export function findAccessByToken(token: string): StoredAccess | undefined {
-  return store.get(token);
+  const key = token?.trim();
+  return key ? store.get(key) : undefined;
 }
 
 export function revokeAccess(token: string) {
-  const existing = store.get(token);
-  if (existing) {
-    store.set(token, { ...existing, revoked: true });
+  const key = token?.trim();
+  if (key) {
+    const access = store.get(key);
+    if (access) {
+      store.set(key, { ...access, revoked: true });
+    }
   }
 }
