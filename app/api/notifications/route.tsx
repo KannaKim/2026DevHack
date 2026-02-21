@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
-import users from "@/lib/mock/users"
 import rule from "@/lib/rule.js"
 import { hasNotificationBeenSent, markNotificationSent } from "@/lib/server-store"
+import users from "@/data/user"
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
