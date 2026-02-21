@@ -1,81 +1,95 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import dbConnect from "@/lib/mongodb";
-import Patient from "@/models/Patient";
-import { AwardIcon } from "lucide-react";
+import users from "@/data/user";
+
+function toPatientResponse(user: any) {
+  return {
+    _id: String(user.id),
+    phin: user.phin,
+    name: user.name,
+    dob: user.dob,
+    conditions: user.conditions || [],
+    vaccines: user.vaccines || [],
+    medicalHistory: user.medicalHistory || [],
+  };
+}
 
 export async function GET() {
   try {
-    await dbConnect();
-
     const cookieStore = await cookies();
     const patientId = cookieStore.get("patientId")?.value;
 
     if (!patientId) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
-    const patient = await Patient.findById(patientId).select("-password");
+    const user = users.find(
+      (u: any) => String(u.id) === patientId || u.phin === patientId
+    );
 
-    if (!patient) {
+    if (!user) {
       return NextResponse.json(
         { success: false, message: "Patient not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true, data: patient });
+    return NextResponse.json({ success: true, data: toPatientResponse(user) });
   } catch (error) {
     console.error("GET /me error:", error);
     return NextResponse.json(
       { success: false, message: "Server error" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function PUT(req: Request) {
   try {
-    await dbConnect();
-
     const cookieStore = await cookies();
     const patientId = cookieStore.get("patientId")?.value;
 
     if (!patientId) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
     const body = await req.json();
+    // No DB: accept update and return the merged data (not persisted)
+    const user = users.find(
+      (u: any) => String(u.id) === patientId || u.phin === patientId
+    );
 
-    const updatedPatient = await Patient.findByIdAndUpdate(
-      patientId,
-      {
-        $set: {
-          name: body.name,
-          dob: body.dob,
-          conditions: body.conditions,
-          vaccines: body.vaccines,
-          medicalHistory: body.medicalHistory,
-        },
-      },
-      { new: true },
-    ).select("-password");
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "Patient not found" },
+        { status: 404 }
+      );
+    }
+
+    const merged = {
+      ...user,
+      name: body.name ?? user.name,
+      dob: body.dob ?? user.dob,
+      conditions: body.conditions ?? user.conditions,
+      vaccines: body.vaccines ?? user.vaccines,
+      medicalHistory: body.medicalHistory ?? user.medicalHistory,
+    };
 
     return NextResponse.json({
       success: true,
-      data: updatedPatient,
+      data: toPatientResponse(merged),
     });
   } catch (error) {
     console.error("PUT /me error:", error);
     return NextResponse.json(
       { success: false, message: "Update failed" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

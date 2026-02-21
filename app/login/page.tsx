@@ -22,12 +22,20 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [clinicName, setClinicName] = useState("");
+  const [dob, setDob] = useState("");
 
   const isPatient = activeTab === "patient";
   const isLogin = authMode === "login";
   const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate password confirmation for registration
+    if (!isLogin && password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
 
     try {
       if (isLogin) {
@@ -78,7 +86,7 @@ export default function LoginPage() {
               phin,
               password,
               name: username,
-              dob: "2000-01-01", // replace with real state later
+              dob: dob || "2000-01-01",
               conditions: [],
             }),
           });
@@ -123,6 +131,7 @@ export default function LoginPage() {
     setPassword("");
     setConfirmPassword("");
     setClinicName("");
+    setDob("");
   };
 
   return (
@@ -255,10 +264,16 @@ export default function LoginPage() {
                         className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
                         required
                       />
-                      <div className="space-y-2">
-                        <Label>Date of Birth</Label>
-                        <Input type="date" required />
-                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Date of Birth</Label>
+                      <Input
+                        type="date"
+                        value={dob}
+                        onChange={(e) => setDob(e.target.value)}
+                        required
+                      />
                     </div>
 
                     <div className="space-y-2">
@@ -269,6 +284,8 @@ export default function LoginPage() {
                       <Input
                         type="text"
                         placeholder="Enter your full name"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                         className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
                         required
                       />

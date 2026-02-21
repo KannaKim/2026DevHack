@@ -1,6 +1,8 @@
 const users = [
   {
     id: 99,
+    phin: "99",
+    password: "password",
     name: "PJ",
     dob: "20000101",
     conditions: ["Hypertension"],

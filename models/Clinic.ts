@@ -12,6 +12,7 @@ const ClinicSchema = new mongoose.Schema(
       required: true,
     },
     name: String,
+    province: String,
   },
   { timestamps: true },
 );

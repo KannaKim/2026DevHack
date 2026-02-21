@@ -1,27 +1,29 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import AccessToken from "@/models/AccessToken";
 import { cookies } from "next/headers";
+import { saveAccess } from "@/lib/accessTokenStore";
 
 export async function POST() {
   try {
-    await dbConnect();
-
     const cookieStore = await cookies();
     const patientId = cookieStore.get("patientId")?.value;
 
     if (!patientId) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
-    const token = "MED-" + crypto.randomUUID().slice(0, 8).toUpperCase();
+    const randomBytes = crypto.getRandomValues(new Uint8Array(16));
+    const token =
+      "MED-" +
+      Array.from(randomBytes, (byte) => byte.toString(16).padStart(2, "0"))
+        .join("")
+        .toUpperCase();
 
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    const access = await AccessToken.create({
+    saveAccess({
       token,
       patientId,
       expiresAt,
@@ -29,12 +31,13 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      data: access,
+      data: { token, expiresAt: expiresAt.toISOString() },
     });
   } catch (error) {
+    console.error("Token generation error:", error);
     return NextResponse.json(
       { success: false, message: "Token generation failed" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

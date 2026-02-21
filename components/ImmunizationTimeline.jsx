@@ -9,15 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import res from "@/lib/rule";
-
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
 import {
   CalendarDays,
   Syringe,
@@ -29,24 +26,55 @@ import {
   CalendarClock,
 } from "lucide-react";
 
-const { timeline: vaccines } = res;
-
-const sorted = [...vaccines].sort(
-  (a, b) => new Date(a.isoDate) - new Date(b.isoDate),
-);
-
-export default function ImmunizationTimeline() {
+export default function ImmunizationTimeline({
+  timeline: initialTimeline,
+  progress,
+  patientName,
+}) {
   const [selected, setSelected] = useState(null);
   const [dialogVaccine, setDialogVaccine] = useState(null);
+
+  // Use provided timeline or empty array
+  const timeline = initialTimeline || [];
+  const sorted = [...timeline].sort(
+    (a, b) => new Date(a.isoDate) - new Date(b.isoDate),
+  );
 
   return (
     <TooltipProvider delayDuration={100}>
       <Card className="w-full shadow-sm border border-slate-200 rounded-2xl bg-white">
-        <CardHeader className="pt-6 px-8 pb-2 shrink-0">
-          <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-            <Syringe className="w-4 h-4 text-slate-400" />
-            Immunization Timeline
-          </CardTitle>
+        <CardHeader className="pt-6 px-8 pb-4 shrink-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                <Syringe className="w-4 h-4 text-slate-400" />
+                Immunization Timeline
+              </CardTitle>
+              {patientName && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {patientName}
+                </p>
+              )}
+            </div>
+            {progress !== undefined && (
+              <div className="text-right">
+                <div className="text-2xl font-bold text-slate-800">
+                  {progress}%
+                </div>
+                <p className="text-xs text-muted-foreground">Complete</p>
+              </div>
+            )}
+          </div>
+
+          {/* Progress bar */}
+          {progress !== undefined && (
+            <div className="mt-4 w-full bg-slate-200 rounded-full h-2">
+              <div
+                className="bg-emerald-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          )}
         </CardHeader>
 
         <CardContent className="px-8 pb-6 pt-4">

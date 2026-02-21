@@ -1,44 +1,66 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import AccessToken from "@/models/AccessToken";
-import "@/models/Patient"; // 👈 IMPORTANT: force model registration
+import { findAccessByToken } from "@/lib/accessTokenStore";
+import users from "@/data/user";
+
 export async function POST(req: Request) {
   try {
-    await dbConnect();
     const body = await req.json();
+    const token = body.token;
 
-    console.log("Incoming token:", body.token);
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: "Token is required" },
+        { status: 400 }
+      );
+    }
 
-    const access = await AccessToken.findOne({
-      token: body.token,
-      revoked: false,
-    }).populate("patientId");
+    const access = findAccessByToken(token);
 
-    console.log("Access result:", access);
-
-    if (!access) {
+    if (!access || access.revoked) {
       return NextResponse.json(
         { success: false, message: "Invalid token" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (new Date(access.expiresAt) < new Date()) {
       return NextResponse.json(
         { success: false, message: "Token expired" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
+    const user = users.find(
+      (u: any) =>
+        String(u.id) === access.patientId || u.phin === access.patientId
+    );
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "Patient not found" },
+        { status: 404 }
+      );
+    }
+
+    const patientData = {
+      _id: String(user.id),
+      phin: user.phin,
+      name: user.name,
+      dob: user.dob,
+      conditions: user.conditions || [],
+      vaccines: user.vaccines || [],
+      medicalHistory: user.medicalHistory || [],
+    };
+
     return NextResponse.json({
       success: true,
-      data: access.patientId,
+      data: patientData,
     });
   } catch (error) {
     console.error("VALIDATE ERROR:", error);
     return NextResponse.json(
       { success: false, message: "Validation failed" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

@@ -13,12 +13,25 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
+const ACCESS_TOKEN_KEY = "med_access_token";
+const ACCESS_EXPIRES_KEY = "med_access_expires";
+
 export default function DoctorAccessPage() {
   const [token, setToken] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Generate Token (Server)
+  // Load token from localStorage on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = localStorage.getItem(ACCESS_TOKEN_KEY);
+    const storedExpires = localStorage.getItem(ACCESS_EXPIRES_KEY);
+    if (stored) {
+      setToken(stored);
+      if (storedExpires) setExpiresAt(storedExpires);
+    }
+  }, []);
+
   const generateToken = async () => {
     try {
       setLoading(true);
@@ -34,14 +47,19 @@ export default function DoctorAccessPage() {
         return;
       }
 
-      setToken(data.data.token);
-      setExpiresAt(data.data.expiresAt);
+      const newToken = data.data.token;
+      const newExpires = data.data.expiresAt;
+
+      setToken(newToken);
+      setExpiresAt(newExpires);
+
+      localStorage.setItem(ACCESS_TOKEN_KEY, newToken);
+      if (newExpires) localStorage.setItem(ACCESS_EXPIRES_KEY, newExpires);
     } finally {
       setLoading(false);
     }
   };
 
-  // Revoke Token (Server)
   const revokeToken = async () => {
     if (!token) return;
 
@@ -55,6 +73,8 @@ export default function DoctorAccessPage() {
 
     setToken(null);
     setExpiresAt(null);
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(ACCESS_EXPIRES_KEY);
     setLoading(false);
   };
 
@@ -82,8 +102,8 @@ export default function DoctorAccessPage() {
             <div className="space-y-4">
               <p className="text-muted-foreground text-sm">
                 Generate a secure, time-limited access token to share your
-                medical records with a clinic. The token automatically expires
-                in 24 hours.
+                medical records with a clinic. The token is stored in this
+                browser and automatically expires in 24 hours.
               </p>
 
               <Button
@@ -106,7 +126,6 @@ export default function DoctorAccessPage() {
             </div>
           ) : (
             <div className="space-y-5">
-              {/* Token Display */}
               <div className="p-4 bg-muted rounded-xl border flex justify-between items-center">
                 <span className="text-lg font-mono tracking-wider">
                   {token}
@@ -122,7 +141,6 @@ export default function DoctorAccessPage() {
                 </Button>
               </div>
 
-              {/* Expiry Info */}
               {expiresAt && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Badge variant="secondary">
@@ -131,7 +149,6 @@ export default function DoctorAccessPage() {
                 </div>
               )}
 
-              {/* Action Buttons */}
               <div className="flex gap-3">
                 <Button
                   variant="destructive"
@@ -155,8 +172,8 @@ export default function DoctorAccessPage() {
               </div>
 
               <p className="text-xs text-muted-foreground">
-                Once revoked or expired, the clinic will no longer be able to
-                access your records.
+                Token is saved in this browser. Once revoked or expired, the
+                clinic will no longer be able to access your records.
               </p>
             </div>
           )}

@@ -28,11 +28,17 @@ import {
 } from "@/components/ui/sidebar";
 
 const handleLogout = async () => {
-  await fetch("/api/auth/patient/logout", {
-    method: "POST",
-  });
-
-  window.location.href = "/login";
+  try {
+    await fetch("/api/auth/patient/logout", {
+      method: "POST",
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+  } finally {
+    // Clear access token from localStorage
+    localStorage.removeItem("med_access_token");
+    window.location.href = "/login";
+  }
 };
 
 export function NavUser({

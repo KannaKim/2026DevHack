@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import PatientHistory from "@/components/PatientHistory";
+import PatientHistory, { getStubHistory } from "@/components/PatientHistory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
-import { getStubHistory } from "@/components/PatientHistory";
 
 type Vaccine = {
   name: string;
   dosesReceived: number;
-  lastDoseDate: string | null;
+  lastDoseDate: string | Date | null;
+};
+
+type MedicalHistoryRecord = {
+  _id?: string;
+  date: string | Date;
+  type: "DIAGNOSIS" | "PRESCRIPTION";
+  title: string;
+  details: string;
+  notes?: string;
 };
 
 type RecordType = "DIAGNOSIS" | "PRESCRIPTION";
@@ -34,11 +42,13 @@ type HistoryRecord = {
 };
 
 type Patient = {
-  id: number;
+  id: string;
   name: string;
-  dob: string;
+  dob: string | Date;
+  phin?: string;
   conditions?: string[];
   vaccines: Vaccine[];
+  medicalHistory?: MedicalHistoryRecord[];
 };
 
 function calculateAge(dob?: string) {
@@ -46,7 +56,9 @@ function calculateAge(dob?: string) {
 
   let birthDate: Date;
 
-  if (/^\d{8}$/.test(dob)) {
+  if (/^\d{4}-\d{2}-\d{2}/.test(dob)) {
+    birthDate = new Date(dob);
+  } else if (/^\d{8}$/.test(dob)) {
     const year = Number(dob.substring(0, 4));
     const month = Number(dob.substring(4, 6)) - 1;
     const day = Number(dob.substring(6, 8));
@@ -68,17 +80,27 @@ function calculateAge(dob?: string) {
   return age;
 }
 
-function formatDOB(dob?: string) {
+function formatDOB(dob?: string | Date) {
   if (!dob) return "Not available";
-  if (!/^\d{8}$/.test(dob)) return "Not available";
 
-  const year = Number(dob.substring(0, 4));
-  const month = Number(dob.substring(4, 6)) - 1;
-  const day = Number(dob.substring(6, 8));
+  let birthDate: Date;
 
-  const date = new Date(year, month, day);
+  if (dob instanceof Date) {
+    birthDate = dob;
+  } else if (/^\d{4}-\d{2}-\d{2}/.test(dob)) {
+    birthDate = new Date(dob);
+  } else if (/^\d{8}$/.test(dob)) {
+    const year = Number(dob.substring(0, 4));
+    const month = Number(dob.substring(4, 6)) - 1;
+    const day = Number(dob.substring(6, 8));
+    birthDate = new Date(year, month, day);
+  } else {
+    birthDate = new Date(dob);
+  }
 
-  return date.toLocaleDateString("en-US", {
+  if (isNaN(birthDate.getTime())) return "Not available";
+
+  return birthDate.toLocaleDateString("en-US", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -96,18 +118,41 @@ export default function PatientInfoDashboard({
   const [open, setOpen] = useState(false);
   const [localHistory, setLocalHistory] = useState<HistoryRecord[]>([]);
 
-  const combinedHistory = [
-    ...localHistory,
-    ...getStubHistory(String(patient.id)),
-  ];
+  // Convert database medical history to display format
+  const convertToHistoryRecord = (
+    record: MedicalHistoryRecord
+  ): HistoryRecord => {
+    const date =
+      record.date instanceof Date
+        ? record.date.toISOString().split("T")[0]
+        : String(record.date).split("T")[0];
+    return {
+      id: record._id || crypto.randomUUID(),
+      date,
+      type: record.type,
+      title: record.title,
+      details: record.details,
+      notes: record.notes,
+    };
+  };
 
-  const age = calculateAge(patient.dob);
+  const databaseHistory = (patient.medicalHistory || []).map(
+    convertToHistoryRecord
+  );
+  const stubHistory = getStubHistory(String(patient.id));
+  const combinedHistory = [...stubHistory, ...localHistory, ...databaseHistory];
+
+  const age = calculateAge(
+    patient.dob instanceof Date
+      ? patient.dob.toISOString().split("T")[0]
+      : patient.dob
+  );
 
   useEffect(() => {
     gsap.fromTo(
       containerRef.current,
       { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
     );
   }, []);
 
@@ -116,7 +161,7 @@ export default function PatientInfoDashboard({
       gsap.fromTo(
         modalRef.current,
         { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.25 },
+        { opacity: 1, y: 0, duration: 0.25 }
       );
     }
   }, [open]);
@@ -258,13 +303,29 @@ export default function PatientInfoDashboard({
               </thead>
               <tbody>
                 {patient?.vaccines?.length ? (
-                  patient.vaccines.map((vac, index) => (
-                    <tr key={index} className="border-b hover:bg-muted/40">
-                      <td className="py-3 pr-4 font-medium">{vac.name}</td>
-                      <td className="py-3 pr-4">{vac.dosesReceived}</td>
-                      <td className="py-3">{vac.lastDoseDate || "—"}</td>
-                    </tr>
-                  ))
+                  patient.vaccines.map((vac, index) => {
+                    let lastDoseFormatted = "—";
+                    if (vac.lastDoseDate) {
+                      const date =
+                        vac.lastDoseDate instanceof Date
+                          ? vac.lastDoseDate
+                          : new Date(vac.lastDoseDate);
+                      if (!isNaN(date.getTime())) {
+                        lastDoseFormatted = date.toLocaleDateString("en-US", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        });
+                      }
+                    }
+                    return (
+                      <tr key={index} className="border-b hover:bg-muted/40">
+                        <td className="py-3 pr-4 font-medium">{vac.name}</td>
+                        <td className="py-3 pr-4">{vac.dosesReceived}</td>
+                        <td className="py-3">{lastDoseFormatted}</td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td colSpan={3} className="py-4 text-muted-foreground">

@@ -2,15 +2,13 @@
 
 import * as React from "react";
 import { IconInnerShadowTop } from "@tabler/icons-react";
-
-import users from "@/data/user";
-
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { BookPlus } from "lucide-react";
 import { MousePointer2 } from "lucide-react";
 import { BookUser } from "lucide-react";
 import Link from "next/link";
+import { useAuthenticatedUser } from "@/hooks/useAuthenticatedUser";
 
 import {
   Sidebar,
@@ -22,43 +20,41 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const data = {
-  user: {
-    name: users[0].name,
-    email: `${users[0].id}`,
-    avatar: "/avatars/shadcn.jpg",
+const navMain = [
+  {
+    title: "Medical history",
+    url: "/dashboard/medhistory",
+    icon: BookPlus,
   },
-  navMain: [
-    {
-      title: "Medical history",
-      url: "/dashboard/medhistory",
-      icon: BookPlus,
-    },
-    {
-      title: "Family",
-      url: "/dashboard/family",
-      icon: BookUser,
-    },
-    {
-      title: "Doctor's Access",
-      url: "/dashboard/docAccess",
-      icon: MousePointer2,
-    },
-  ],
-};
+  {
+    title: "Family",
+    url: "/dashboard/family",
+    icon: BookUser,
+  },
+  {
+    title: "Doctor's Access",
+    url: "/dashboard/docAccess",
+    icon: MousePointer2,
+  },
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useAuthenticatedUser();
+
+  const userData = {
+    name: user?.name || "Patient",
+    email: user?.phin || "—",
+    avatar: "/avatars/shadcn.jpg",
+  };
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
+            <SidebarMenuButton asChild>
               <Link href="/dashboard">
-                <IconInnerShadowTop className="!size-5" />
+                <IconInnerShadowTop className="w-5 h-5" />
                 <span className="text-base font-semibold">Med Track.</span>
               </Link>
             </SidebarMenuButton>
@@ -66,10 +62,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   );

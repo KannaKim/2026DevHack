@@ -1,35 +1,45 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Patient from "@/models/Patient";
+import users from "@/data/user";
 
+// No DB: registration uses hardcoded data. If PHIN exists in data, "register" = login.
 export async function POST(req: Request) {
   try {
-    await dbConnect();
     const body = await req.json();
+    const existing = users.find((u: any) => u.phin === body.phin);
 
-    const existing = await Patient.findOne({ phin: body.phin });
     if (existing) {
-      return NextResponse.json(
-        { success: false, message: "PHIN already registered" },
-        { status: 400 },
-      );
+      // Treat as login with provided password
+      if (existing.password !== body.password) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "PHIN already registered - use correct password",
+          },
+          { status: 400 }
+        );
+      }
+      const response = NextResponse.json({ success: true });
+      response.cookies.set("patientId", String(existing.id), {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        path: "/",
+      });
+      return response;
     }
 
-    const patient = await Patient.create({
-      phin: body.phin,
-      password: body.password, // 🔓 plain text
-      name: body.name,
-      dob: new Date(body.dob),
-      conditions: body.conditions || [],
-      vaccines: [],
-      medicalHistory: [],
-    });
-
-    return NextResponse.json({ success: true, data: patient });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Use demo account: PHIN 99, password: password",
+      },
+      { status: 400 }
+    );
   } catch (error) {
+    console.error("Patient registration error:", error);
     return NextResponse.json(
       { success: false, message: "Registration failed" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

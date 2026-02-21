@@ -1,35 +1,44 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Clinic from "@/models/Clinic";
-import bcrypt from "bcryptjs";
+import clinics from "@/data/clinic";
 
+// No DB: use hardcoded clinic. If clinicId exists, "register" = login.
 export async function POST(req: Request) {
   try {
-    await dbConnect();
     const body = await req.json();
+    const existing = clinics.find((c: any) => c.clinicId === body.clinicId);
 
-    const existing = await Clinic.findOne({ clinicId: body.clinicId });
     if (existing) {
-      return NextResponse.json(
-        { success: false, message: "Clinic already registered" },
-        { status: 400 },
-      );
+      if (existing.password !== body.password) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Clinic ID already registered - use correct password",
+          },
+          { status: 400 }
+        );
+      }
+      const response = NextResponse.json({ success: true });
+      response.cookies.set("clinicId", existing.clinicId, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        path: "/",
+      });
+      return response;
     }
 
-    const hashedPassword = await bcrypt.hash(body.password, 10);
-
-    const clinic = await Clinic.create({
-      clinicId: body.clinicId,
-      province: body.province,
-      password: hashedPassword,
-      name: body.name,
-    });
-
-    return NextResponse.json({ success: true, data: clinic });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Use demo clinic: ID clinic1, password: password",
+      },
+      { status: 400 }
+    );
   } catch (error) {
+    console.error("Clinic registration error:", error);
     return NextResponse.json(
       { success: false, message: "Clinic registration failed" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
