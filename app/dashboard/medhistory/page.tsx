@@ -8,8 +8,10 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import ImmunizationTimeline from "@/components/ImmunizationTimeline";
 import PatientProfile from "@/components/PatientProfile";
+import {profile} from "@/components/PatientProfile";
 
 import data from "../data.json";
+import MedicalHistoryTimeline from "@/components/Medhistory";
 
 export default function Page() {
   return (
@@ -31,7 +33,7 @@ export default function Page() {
           {/* <div className="px-4 lg:px-6">
                 <ChartAreaInteractive />
               </div> */}
-          <ImmunizationTimeline />
+          <MedicalHistoryTimeline patientID={profile.id}/>
           {/* <DataTable data={data} /> */}
           {/* </div> */}
           {/* </div> */}
