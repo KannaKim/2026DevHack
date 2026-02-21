@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import users from "@/lib/mock/users"
 import rule from "@/lib/rule.js"
+import { hasNotificationBeenSent, markNotificationSent } from "@/lib/server-store"
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
@@ -16,17 +17,26 @@ export async function GET(request: Request) {
     const completedVaccines: string[] = []
 
     for (const res of timeline) {
+      if (res.status === "completed") {
+        completedVaccines.push(res.name)
+        continue
+      }
+
+      // Check if we've already sent a notification about this specific vaccine status today
+      if (hasNotificationBeenSent(user.id, res.name, res.status)) {
+        continue
+      }
+
       if (res.status === "missed") missedVaccines.push(res.name)
       else if (res.status === "upcoming") dueSoonVaccines.push(res.name)
-      else if (res.status === "completed") completedVaccines.push(res.name)
     }
 
     if (missedVaccines.length === 0 && dueSoonVaccines.length === 0) {
       continue
     }
 
-    const email = user.email || "test@example.com"
-    const phone = user.phone || "1234567890"
+    const email = user.email || process.env.EMAIL_ADDRESS
+    const phone = user.phone || process.env.PHONE_NUMBER
 
     // Construct a comprehensive clinic visit message
     let messageBody = `Hello ${user.name},\n\nWe noticed you might be visiting the clinic soon or need to update your records. `
@@ -69,6 +79,10 @@ export async function GET(request: Request) {
     } catch (e) {
       console.error("SMS error:", e)
     }
+
+    // Mark as sent to prevent duplicates
+    for (const v of missedVaccines) markNotificationSent(user.id, v, "missed")
+    for (const v of dueSoonVaccines) markNotificationSent(user.id, v, "upcoming")
 
     sentCount++
   }
