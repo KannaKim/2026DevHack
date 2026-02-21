@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Patient from "@/models/Patient";
-import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
@@ -9,6 +8,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const patient = await Patient.findOne({ phin: body.phin });
+
     if (!patient) {
       return NextResponse.json(
         { success: false, message: "Invalid PHIN" },
@@ -16,8 +16,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const isMatch = await bcrypt.compare(body.password, patient.password);
-    if (!isMatch) {
+    // 🔓 Plain text comparison (temporary)
+    if (body.password !== patient.password) {
       return NextResponse.json(
         { success: false, message: "Invalid password" },
         { status: 400 },
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
     response.cookies.set("patientId", patient._id.toString(), {
       httpOnly: true,
-      secure: false, // change to true in production
+      secure: false,
       sameSite: "lax",
       path: "/",
     });

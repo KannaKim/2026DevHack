@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Patient from "@/models/Patient";
-import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
@@ -16,11 +15,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(body.password, 10);
-
     const patient = await Patient.create({
       phin: body.phin,
-      password: hashedPassword,
+      password: body.password, // 🔓 plain text
       name: body.name,
       dob: new Date(body.dob),
       conditions: body.conditions || [],

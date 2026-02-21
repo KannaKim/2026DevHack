@@ -194,10 +194,6 @@ export default function LoginPage() {
                       className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
                       required
                     />
-                    <div className="space-y-2">
-                      <Label>Date of Birth</Label>
-                      <Input type="date" required />
-                    </div>
                   </div>
                 ) : (
                   <div className="space-y-2 group">

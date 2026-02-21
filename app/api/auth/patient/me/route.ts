@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import dbConnect from "@/lib/mongodb";
 import Patient from "@/models/Patient";
-import { cookies } from "next/headers";
+import { AwardIcon } from "lucide-react";
 
 export async function GET() {
   try {
@@ -12,7 +13,7 @@ export async function GET() {
 
     if (!patientId) {
       return NextResponse.json(
-        { success: false, message: "Not authenticated" },
+        { success: false, message: "Unauthorized" },
         { status: 401 },
       );
     }
@@ -26,13 +27,54 @@ export async function GET() {
       );
     }
 
+    return NextResponse.json({ success: true, data: patient });
+  } catch (error) {
+    console.error("GET /me error:", error);
+    return NextResponse.json(
+      { success: false, message: "Server error" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    await dbConnect();
+
+    const cookieStore = await cookies();
+    const patientId = cookieStore.get("patientId")?.value;
+
+    if (!patientId) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 },
+      );
+    }
+
+    const body = await req.json();
+
+    const updatedPatient = await Patient.findByIdAndUpdate(
+      patientId,
+      {
+        $set: {
+          name: body.name,
+          dob: body.dob,
+          conditions: body.conditions,
+          vaccines: body.vaccines,
+          medicalHistory: body.medicalHistory,
+        },
+      },
+      { new: true },
+    ).select("-password");
+
     return NextResponse.json({
       success: true,
-      data: patient,
+      data: updatedPatient,
     });
   } catch (error) {
+    console.error("PUT /me error:", error);
     return NextResponse.json(
-      { success: false, message: "Failed to fetch patient" },
+      { success: false, message: "Update failed" },
       { status: 500 },
     );
   }
