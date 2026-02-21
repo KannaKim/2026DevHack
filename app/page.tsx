@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Building2, User, Mail, Lock, Key, ArrowRight } from "lucide-react"
+import { useRouter } from "next/navigation"
 import clsx from "clsx"
 
 type TabType = "patient" | "clinic"
@@ -24,36 +25,54 @@ export default function LoginPage() {
   
   const isPatient = activeTab === "patient"
   const isLogin = authMode === "login"
+  const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
     
+  try {
     if (isLogin) {
-      // Handle login logic
       console.log("Logging in as:", {
         type: activeTab,
         ...(isPatient ? { email } : { username }),
-        password
+        password,
       })
       
-      // Add your authentication logic here
-      // Example: await signIn(activeTab, isPatient ? email : username, password)
-      
+
+      // 🔐 Authentication (commented for now)
+      // await signIn(activeTab, isPatient ? email : username, password)
+
+      // Temporary redirect logic
+      if (activeTab === "patient") {
+        window.location.href = "https://l0plqt3p-5500.usw2.devtunnels.ms/welcome.html"
+      } else {
+        window.location.href = "https://l0plqt3p-5500.usw2.devtunnels.ms/dashboard.html"
+      }
+
     } else {
-      // Handle registration logic
       console.log("Registering as:", {
         type: activeTab,
-        ...(isPatient 
-          ? { email } 
-          : { username, clinicName }
-        ),
-        password
+        ...(isPatient
+          ? { email }
+          : { username, clinicName }),
+        password,
       })
-      
-      // Add your registration logic here
-      // Example: await register(activeTab, registration data)
+
+      // 📝 Registration logic (commented for now)
+      // await register(activeTab, registrationData)
+
+      // Temporary redirect after register
+      if (activeTab === "patient") {
+        window.location.href = "https://l0plqt3p-5500.usw2.devtunnels.ms/welcome.html"
+      } else {
+        window.location.href = "https://l0plqt3p-5500.usw2.devtunnels.ms/welcome.html"
+      }
     }
+
+  } catch (error) {
+    console.error("Auth error:", error)
   }
+}
 
   const toggleMode = () => {
     setAuthMode(isLogin ? "register" : "login")
@@ -64,6 +83,17 @@ export default function LoginPage() {
     setConfirmPassword("")
     setClinicName("")
   }
+
+  const handleID = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
+
+  console.log("Signing in with Gov ID as:", {
+    type: activeTab
+  });
+
+  // Redirect to index.html
+  window.location.href = "https://l0plqt3p-5500.usw2.devtunnels.ms/index.html";
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -290,6 +320,13 @@ export default function LoginPage() {
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 rounded-xl font-semibold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
             >
               {isLogin ? "Sign In" : "Create Account"}
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+            <Button onClick={handleID}
+              type="button"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 rounded-xl font-semibold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+            >
+              {"Sign In with Gov ID"}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
 
