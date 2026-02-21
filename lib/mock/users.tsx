@@ -19,6 +19,8 @@ const users = [
         lastDoseDate: "2024-02-05",
       },
     ],
+    phone: "12045905405",
+    email: "felicitymalong@gmail.com",
   },
   {
     id: 2,

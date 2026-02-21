@@ -11,6 +11,8 @@ type User = {
   immunocompromised?: boolean;
   conditions?: string[];
   vaccines: { name: string; dosesReceived: number; lastDoseDate: string | null }[];
+  phone?: string;
+  email?: string;
 };
 
 export type VaccineStatus = "completed" | "dueSoon" | "overdue" | "eligibleNow" | "notEligible";
