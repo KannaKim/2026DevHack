@@ -44,7 +44,7 @@ const data = {
   navMain: [
     {
       title: "Medical history",
-      url: "#",
+      url: "/dashboard/medhistory",
       icon: BookPlus,
     },
     {
