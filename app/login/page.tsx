@@ -44,9 +44,9 @@ export default function LoginPage() {
 
       // Temporary redirect logic
       if (activeTab === "patient") {
-        window.location.href = "https://l0plqt3p-5500.usw2.devtunnels.ms/welcome.html"
+        router.push("/dashboard") // Using Next.js router for client-side navigation
       } else {
-        window.location.href = "https://l0plqt3p-5500.usw2.devtunnels.ms/dashboard.html"
+        router.push("/dashboard") // Redirect to clinic dashboard
       }
 
     } else {
@@ -63,9 +63,9 @@ export default function LoginPage() {
 
       // Temporary redirect after register
       if (activeTab === "patient") {
-        window.location.href = "https://l0plqt3p-5500.usw2.devtunnels.ms/welcome.html"
+        router.push("/dashboard")
       } else {
-        window.location.href = "https://l0plqt3p-5500.usw2.devtunnels.ms/welcome.html"
+        router.push("/dashboard")
       }
     }
 
