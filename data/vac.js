@@ -1,5 +1,13 @@
 const data = [
   {
+    code: "Tdap",
+    name: "Tdap",
+    schedule: [{ dose: 1 }],
+    intervalRules: {
+      minDaysBetweenDoses: 3650,
+    },
+  },
+  {
     code: "DTaP_IPV_Hib",
     name: "DTaP-IPV-Hib",
     category: "routine_childhood",
