@@ -11,6 +11,7 @@ export async function POST(req: Request) {
       from: process.env.TWILIO_PHONE_NUMBER!,
       body,
     });
+    console.log(msg.body);
 
     return Response.json({ ok: true, sid: msg.sid, status: msg.status });
   } catch (err: any) {

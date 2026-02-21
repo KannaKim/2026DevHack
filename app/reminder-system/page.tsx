@@ -6,7 +6,6 @@ import users from "@/lib/mock/users";
 import NotificationPrefsDropdown, { NotificationPrefs } from "@/components/ui/NotificationPrefsDropdown";
 import { prefsToChannels, prefsToTypes } from "@/lib/reminders/prefsMap";
 
-// these are your existing functions from earlier
 import { evaluateUserVaccines } from "@/lib/reminders/eligibility";
 import { generateReminders } from "@/lib/reminders/generate";
 import { dedupe } from "@/lib/reminders/sentLog";
@@ -20,11 +19,11 @@ async function sendEmail(to: string, message: string) {
         body: JSON.stringify({ to, message }),
     });
 }
-async function sendSMS(to: string, message: string) {
+async function sendSMS(to: string, body: string) {
     await fetch("/api/send-sms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to, message }),
+        body: JSON.stringify({ to, body }),
     });
 }
 
