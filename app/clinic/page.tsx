@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import users from "@/data/user";
+// import users from "@/data/user"; remove this line if the GET works
 import PatientInfoDashboard from "@/components/PatientInfoDashboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
@@ -11,39 +11,33 @@ export default function ClinicPage() {
   const [patient, setPatient] = useState<any>(null);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const stored = localStorage.getItem("tempAccess");
-
-    if (!stored) {
-      setError("No active access token found.");
-      return;
-    }
-
-    const parsed = JSON.parse(stored);
-
-    if (parsed.expiresAt < Date.now()) {
-      localStorage.removeItem("tempAccess");
-      setError("Access token has expired.");
-      return;
-    }
-
-    if (parsed.token !== search.trim()) {
-      setError("Invalid access token.");
-      return;
-    }
-
-    const foundPatient = users.find((u) => u.id === parsed.patientId);
-
-    if (!foundPatient) {
-      setError("Patient not found.");
-      return;
-    }
-
     setError("");
-    setPatient(foundPatient);
+    setPatient(null);
+
+    try {
+      const res = await fetch("/api/access/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: search.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        setError(data.message || "Invalid access token.");
+        return;
+      }
+
+      setPatient(data.data);
+    } catch (err) {
+      setError("Something went wrong.");
+    }
   };
+
+  // The return ui
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

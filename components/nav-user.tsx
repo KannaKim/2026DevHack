@@ -9,7 +9,6 @@ import {
 } from "@tabler/icons-react";
 
 import Link from "next/link";
-import users from "@/data/user";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -27,6 +26,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+
+const handleLogout = async () => {
+  await fetch("/api/auth/patient/logout", {
+    method: "POST",
+  });
+
+  window.location.href = "/login";
+};
 
 export function NavUser({
   user,
@@ -97,10 +104,13 @@ export function NavUser({
             <DropdownMenuSeparator />
 
             <DropdownMenuItem asChild>
-              <Link href="/login" className="flex items-center gap-2">
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
                 <IconLogout className="size-4" />
                 Log out
-              </Link>
+              </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
 
   // Form state
-  const [email, setEmail] = useState("");
+  const [phin, setPhin] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -26,70 +26,104 @@ export default function LoginPage() {
   const isPatient = activeTab === "patient";
   const isLogin = authMode === "login";
   const router = useRouter();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       if (isLogin) {
-        console.log("Logging in as:", {
-          type: activeTab,
-          ...(isPatient ? { email } : { username }),
-          password,
-        });
-
-        // 🔐 Authentication (commented for now)
-        // await signIn(activeTab, isPatient ? email : username, password)
-
-        // Temporary redirect logic
         if (activeTab === "patient") {
-          router.push("/dashboard"); // Using Next.js router for client-side navigation
+          const res = await fetch("/api/auth/patient/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              phin,
+              password,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (!data.success) {
+            alert(data.message);
+            return;
+          }
+
+          router.push("/dashboard");
         } else {
-          router.push("/clinic"); // Redirect to clinic dashboard
+          const res = await fetch("/api/auth/clinic/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              clinicId: username,
+              password,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (!data.success) {
+            alert(data.message);
+            return;
+          }
+
+          router.push("/clinic");
         }
       } else {
-        console.log("Registering as:", {
-          type: activeTab,
-          ...(isPatient ? { email } : { username, clinicName }),
-          password,
-        });
-
-        // 📝 Registration logic (commented for now)
-        // await register(activeTab, registrationData)
-
-        // Temporary redirect after register
+        // Registration
         if (activeTab === "patient") {
+          const res = await fetch("/api/auth/patient/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              phin,
+              password,
+              name: username,
+              dob: "2000-01-01", // replace with real state later
+              conditions: [],
+            }),
+          });
+
+          const data = await res.json();
+          if (!data.success) {
+            alert(data.message);
+            return;
+          }
+
           router.push("/dashboard");
         } else {
-          router.push("/dashboard");
+          const res = await fetch("/api/auth/clinic/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              clinicId: username,
+              password,
+              name: clinicName,
+            }),
+          });
+
+          const data = await res.json();
+          if (!data.success) {
+            alert(data.message);
+            return;
+          }
+
+          router.push("/clinic");
         }
       }
     } catch (error) {
-      console.error("Auth error:", error);
+      console.error(error);
     }
   };
 
   const toggleMode = () => {
     setAuthMode(isLogin ? "register" : "login");
     // Clear form when switching modes
-    setEmail("");
+    setPhin("");
     setUsername("");
     setPassword("");
     setConfirmPassword("");
     setClinicName("");
   };
-
-  // const handleID = (e: React.MouseEvent<HTMLButtonElement>) => {
-  //   e.preventDefault();
-
-  //   console.log("Signing in with Gov ID as:", {
-  //     type: activeTab,
-  //   });
-
-  //   // Redirect to index.html
-  //   window.location.href =
-  //     "https://l0plqt3p-5500.usw2.devtunnels.ms/index.html";
-  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -149,27 +183,31 @@ export default function LoginPage() {
                 {isPatient ? (
                   <div className="space-y-2 group">
                     <Label className="text-gray-700 flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-blue-600" />
-                      Email Address
+                      <Key className="w-4 h-4 text-blue-600" />
+                      PHIN (9-digit Manitoba Health ID)
                     </Label>
                     <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      type="text"
+                      placeholder="Enter your PHIN"
+                      value={phin}
+                      onChange={(e) => setPhin(e.target.value)}
                       className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
                       required
                     />
+                    <div className="space-y-2">
+                      <Label>Date of Birth</Label>
+                      <Input type="date" required />
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-2 group">
                     <Label className="text-gray-700 flex items-center gap-2">
                       <User className="w-4 h-4 text-blue-600" />
-                      Username
+                      Clinic ID
                     </Label>
                     <Input
                       type="text"
-                      placeholder="Enter your username"
+                      placeholder="Enter your Clinic ID"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
@@ -208,19 +246,23 @@ export default function LoginPage() {
                 {isPatient ? (
                   // Patient Registration
                   <>
-                    <div className="space-y-2">
+                    <div className="space-y-2 group">
                       <Label className="text-gray-700 flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-blue-600" />
-                        Email Address
+                        <Key className="w-4 h-4 text-blue-600" />
+                        PHIN (9-digit Manitoba Health ID)
                       </Label>
                       <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        type="text"
+                        placeholder="Enter your PHIN"
+                        value={phin}
+                        onChange={(e) => setPhin(e.target.value)}
                         className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
                         required
                       />
+                      <div className="space-y-2">
+                        <Label>Date of Birth</Label>
+                        <Input type="date" required />
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -257,11 +299,11 @@ export default function LoginPage() {
                     <div className="space-y-2">
                       <Label className="text-gray-700 flex items-center gap-2">
                         <User className="w-4 h-4 text-blue-600" />
-                        Username
+                        Clinic ID
                       </Label>
                       <Input
                         type="text"
-                        placeholder="Choose a username"
+                        placeholder="Provide your Clinic ID"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all"
@@ -319,14 +361,6 @@ export default function LoginPage() {
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 rounded-xl font-semibold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
             >
               {isLogin ? "Sign In" : "Create Account"}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-            <Button
-              // onClick={handleID}
-              type="button"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 rounded-xl font-semibold transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-            >
-              {"Sign In with Gov ID"}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
 
