@@ -23,9 +23,10 @@ import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
-import { BookPlus } from 'lucide-react';
-import { MousePointer2 } from 'lucide-react';
-import { BookUser } from 'lucide-react';
+import { BookPlus } from "lucide-react";
+import { MousePointer2 } from "lucide-react";
+import { BookUser } from "lucide-react";
+import Link from "next/link";
 
 import {
   Sidebar,
@@ -39,8 +40,8 @@ import {
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "USER 1",
+    email: "IDXY_ZUSS_II",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
@@ -56,7 +57,7 @@ const data = {
     },
     {
       title: "Doctor's Access",
-      url: "/dashboard/doctors-access",
+      url: "/dashboard/docAccess",
       icon: MousePointer2,
     },
   ],
@@ -154,18 +155,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <Link href="/dashboard">
                 <IconInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">Med Track.</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        {/* <NavDocuments items={data.documents} /> */}
-        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
