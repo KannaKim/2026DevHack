@@ -47,6 +47,16 @@ const data = {
       url: "#",
       icon: BookPlus,
     },
+    {
+      title: "Family",
+      url: "#",
+      icon: IconDashboard,
+    },
+    {
+      title: "Doctor's Access",
+      url: "#",
+      icon: IconChartBar,
+    },
   ],
   navClouds: [
     {

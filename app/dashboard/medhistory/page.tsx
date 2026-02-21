@@ -9,7 +9,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import ImmunizationTimeline from "@/components/ImmunizationTimeline";
 import PatientProfile from "@/components/PatientProfile";
 
-import data from "./data.json";
+import data from "../data.json";
 
 export default function Page() {
   return (
