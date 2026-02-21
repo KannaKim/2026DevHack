@@ -8,6 +8,8 @@ import {
   IconUserCircle,
 } from "@tabler/icons-react";
 
+import Link from "next/link";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -47,17 +49,22 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {user.name?.[0]}
+                </AvatarFallback>
               </Avatar>
+
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="text-muted-foreground truncate text-xs">
                   {user.email}
                 </span>
               </div>
+
               <IconDotsVertical className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
@@ -65,19 +72,34 @@ export function NavUser({
             sideOffset={4}
           >
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <IconUserCircle />
-                Account
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/dashboard/account"
+                  className="flex items-center gap-2"
+                >
+                  <IconUserCircle className="size-4" />
+                  Account
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconNotification />
-                Notifications
+
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/dashboard/notifications"
+                  className="flex items-center gap-2"
+                >
+                  <IconNotification className="size-4" />
+                  Notifications
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <IconLogout />
-              Log out
+
+            <DropdownMenuItem asChild>
+              <Link href="/login" className="flex items-center gap-2">
+                <IconLogout className="size-4" />
+                Log out
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
