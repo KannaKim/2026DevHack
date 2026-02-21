@@ -24,7 +24,9 @@ import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import { BookPlus } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { MousePointer2 } from 'lucide-react';
+import { BookUser } from 'lucide-react';
+
 import {
   Sidebar,
   SidebarContent,
@@ -49,13 +51,13 @@ const data = {
     },
     {
       title: "Family",
-      url: "#",
-      icon: IconDashboard,
+      url: "/dashboard/family",
+      icon: BookUser,
     },
     {
       title: "Doctor's Access",
-      url: "#",
-      icon: IconChartBar,
+      url: "/dashboard/doctors-access",
+      icon: MousePointer2,
     },
   ],
   navClouds: [
