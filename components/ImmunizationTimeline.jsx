@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import res from "@/lib/rule";
 
 import {
@@ -12,7 +18,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { CalendarDays, Syringe } from "lucide-react";
+import {
+  CalendarDays,
+  Syringe,
+  Building2,
+  Hash,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  CalendarClock,
+} from "lucide-react";
 
 const { timeline: vaccines } = res;
 
@@ -22,6 +37,7 @@ const sorted = [...vaccines].sort(
 
 export default function ImmunizationTimeline() {
   const [selected, setSelected] = useState(null);
+  const [dialogVaccine, setDialogVaccine] = useState(null);
 
   return (
     <TooltipProvider delayDuration={100}>
@@ -41,7 +57,7 @@ export default function ImmunizationTimeline() {
             <Legend color="bg-rose-500" label="Missed" />
           </div>
 
-          {/* This div is the ONLY scroll container — scrollbar stays inside the card */}
+          {/* Scroll container */}
           <div
             className="overflow-x-auto overflow-y-hidden"
             style={{
@@ -53,14 +69,12 @@ export default function ImmunizationTimeline() {
               className="relative"
               style={{ minWidth: "900px", paddingBottom: "8px" }}
             >
-              {/* Timeline line — vertically centred in the dot row */}
-              {/* date block h-10=40px, dot h-8 centre=16px → line at top 56px */}
+              {/* Timeline line */}
               <div
                 className="absolute left-0 right-0 bg-slate-200"
                 style={{ top: "56px", height: "2px", zIndex: 0 }}
               />
 
-              {/* Vaccine items */}
               <div
                 className="relative flex justify-between items-start w-full"
                 style={{ zIndex: 1 }}
@@ -71,21 +85,20 @@ export default function ImmunizationTimeline() {
                       <div
                         role="button"
                         tabIndex={0}
-                        onClick={() =>
-                          setSelected(
-                            selected === vaccine.id ? null : vaccine.id,
-                          )
-                        }
+                        onClick={() => {
+                          setSelected(vaccine.id);
+                          setDialogVaccine(vaccine);
+                        }}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ")
-                            setSelected(
-                              selected === vaccine.id ? null : vaccine.id,
-                            );
+                          if (e.key === "Enter" || e.key === " ") {
+                            setSelected(vaccine.id);
+                            setDialogVaccine(vaccine);
+                          }
                         }}
                         className="flex flex-col items-center cursor-pointer group outline-none rounded-xl px-2 py-1 transition-colors hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-slate-300"
                         style={{ width: "112px" }}
                       >
-                        {/* Date — h-10 ensures all dots land on the same horizontal */}
+                        {/* Date */}
                         <div
                           className="flex items-center justify-center"
                           style={{ height: "40px" }}
@@ -105,7 +118,7 @@ export default function ImmunizationTimeline() {
                           </span>
                         </div>
 
-                        {/* Dot — h-8 (32px), centre at 16px → total 56px from top = on the line */}
+                        {/* Dot */}
                         <div
                           className="flex items-center justify-center"
                           style={{ height: "32px" }}
@@ -158,7 +171,7 @@ export default function ImmunizationTimeline() {
                         <CalendarDays className="w-3 h-3" />
                         {vaccine.date}
                       </div>
-                      {vaccine.provider !== "—" && (
+                      {vaccine.provider && vaccine.provider !== "—" && (
                         <div className="text-slate-400 text-[10px] mt-1">
                           {vaccine.provider} · Lot: {vaccine.lot}
                         </div>
@@ -171,7 +184,131 @@ export default function ImmunizationTimeline() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Vaccine Detail Dialog */}
+      <Dialog
+        open={!!dialogVaccine}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDialogVaccine(null);
+            setSelected(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md rounded-2xl p-0 overflow-hidden">
+          {dialogVaccine && (
+            <>
+              {/* Coloured top strip based on status */}
+              <div
+                className={`h-2 w-full
+                  ${
+                    dialogVaccine.status === "completed"
+                      ? "bg-emerald-500"
+                      : dialogVaccine.status === "missed"
+                        ? "bg-rose-500"
+                        : "bg-amber-500"
+                  }
+                `}
+              />
+
+              <div className="px-6 pt-5 pb-6">
+                <DialogHeader className="mb-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <DialogTitle className="text-lg font-bold text-slate-800 leading-tight">
+                        {dialogVaccine.name}
+                      </DialogTitle>
+                      <div className="mt-1.5">
+                        {dialogVaccine.status === "completed" ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-full">
+                            <CheckCircle2 className="w-3 h-3" /> Completed
+                          </span>
+                        ) : dialogVaccine.status === "missed" ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-600 bg-rose-50 border border-rose-100 px-2.5 py-0.5 rounded-full">
+                            <AlertCircle className="w-3 h-3" /> Missed
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 bg-amber-50 border border-amber-100 px-2.5 py-0.5 rounded-full">
+                            <Clock className="w-3 h-3" /> Upcoming
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </DialogHeader>
+
+                {/* Details grid */}
+                <div className="flex flex-col gap-3">
+                  <DetailRow
+                    icon={<CalendarDays className="w-4 h-4 text-slate-400" />}
+                    label="Scheduled Date"
+                    value={dialogVaccine.date}
+                  />
+
+                  {dialogVaccine.provider && dialogVaccine.provider !== "—" && (
+                    <DetailRow
+                      icon={<Building2 className="w-4 h-4 text-slate-400" />}
+                      label="Provider"
+                      value={dialogVaccine.provider}
+                    />
+                  )}
+
+                  {dialogVaccine.lot && dialogVaccine.lot !== "—" && (
+                    <DetailRow
+                      icon={<Hash className="w-4 h-4 text-slate-400" />}
+                      label="Lot Number"
+                      value={dialogVaccine.lot}
+                    />
+                  )}
+                </div>
+
+                {/* Schedule button — only for upcoming or missed */}
+                {dialogVaccine.status !== "completed" && (
+                  <div className="mt-6">
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-150 outline-none
+                        focus-visible:ring-2 focus-visible:ring-offset-2
+                        ${
+                          dialogVaccine.status === "missed"
+                            ? "bg-rose-500 hover:bg-rose-600 text-white focus-visible:ring-rose-400"
+                            : "bg-amber-500 hover:bg-amber-600 text-white focus-visible:ring-amber-400"
+                        }
+                      `}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          // hook up your scheduling logic here
+                        }
+                      }}
+                    >
+                      <CalendarClock className="w-4 h-4" />
+                      {dialogVaccine.status === "missed"
+                        ? "Reschedule Appointment"
+                        : "Schedule Appointment"}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </TooltipProvider>
+  );
+}
+
+function DetailRow({ icon, label, value }) {
+  return (
+    <div className="flex items-center gap-3 py-2.5 border-b border-slate-100 last:border-0">
+      <div className="shrink-0">{icon}</div>
+      <div className="flex flex-col">
+        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+          {label}
+        </span>
+        <span className="text-sm font-medium text-slate-700">{value}</span>
+      </div>
+    </div>
   );
 }
 
