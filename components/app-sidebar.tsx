@@ -23,6 +23,10 @@ import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
+import { BookPlus } from 'lucide-react';
+import { MousePointer2 } from 'lucide-react';
+import { BookUser } from 'lucide-react';
+
 import {
   Sidebar,
   SidebarContent,
@@ -41,29 +45,19 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
+      title: "Medical history",
+      url: "/dashboard/medhistory",
+      icon: BookPlus,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "Family",
+      url: "/dashboard/family",
+      icon: BookUser,
     },
     {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
+      title: "Doctor's Access",
+      url: "/dashboard/doctors-access",
+      icon: MousePointer2,
     },
   ],
   navClouds: [

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Phone, Mail } from "lucide-react";
 
-const profile = {
+export const profile = {
   name: "Sarah Jenkins",
   id: "#839201",
   avatar: "https://i.pravatar.cc/150?img=47",

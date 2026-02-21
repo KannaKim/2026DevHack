@@ -1,6 +1,6 @@
-type RecordType = 'DIAGNOSIS' | 'PRESCRIPTION'
+export type RecordType = 'DIAGNOSIS' | 'PRESCRIPTION'
 
-type HistoryRecord = {
+export type HistoryRecord = {
     id: string
     date: string
     type: RecordType
@@ -10,7 +10,7 @@ type HistoryRecord = {
 }
 
 // Temporary stub data - separated by event type
-const getStubHistory = (patientID: string): HistoryRecord[] => {
+export const getStubHistory = (patientID: string): HistoryRecord[] => {
     return [
         {
             id: '1',
