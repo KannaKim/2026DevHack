@@ -23,20 +23,17 @@ export default function ClinicPage() {
 
     const parsed = JSON.parse(stored);
 
-    // Check expiry
     if (parsed.expiresAt < Date.now()) {
       localStorage.removeItem("tempAccess");
       setError("Access token has expired.");
       return;
     }
 
-    // Check token match
     if (parsed.token !== search.trim()) {
       setError("Invalid access token.");
       return;
     }
 
-    // Find patient using patientId
     const foundPatient = users.find((u) => u.id === parsed.patientId);
 
     if (!foundPatient) {
@@ -49,30 +46,34 @@ export default function ClinicPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Main Content Wrapper */}
       <div
-        className={`transition-all duration-500 ease-in-out flex flex-col items-center ${
-          patient ? "pt-6" : "justify-center h-screen"
+        className={`flex flex-col items-center transition-all duration-500 ease-in-out px-4 ${
+          patient ? "pt-6" : "justify-center flex-1"
         }`}
       >
+        {/* Heading */}
         {!patient && (
-          <div className="mb-8 flex flex-col items-center">
-            <h1 className="text-5xl sm:text-7xl font-semibold tracking-tighter text-blue-500 mb-2">
-              Clinic<span className="text-foreground">Search</span>
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-blue-500">
+              Clinic
+              <span className="text-foreground">Search</span>
             </h1>
           </div>
         )}
 
+        {/* Search Row */}
         <div
-          className={`${
+          className={`w-full ${
             patient
-              ? "w-full max-w-6xl px-4 flex gap-6 items-center border-b border-gray-200 pb-6"
-              : "w-full max-w-2xl px-4"
+              ? "max-w-5xl flex flex-col sm:flex-row gap-4 items-center border-b border-muted pb-6"
+              : "max-w-xl"
           }`}
         >
           {patient && (
             <h2
-              className="text-2xl font-semibold tracking-tighter text-blue-500 shrink-0 cursor-pointer"
+              className="text-xl sm:text-2xl font-semibold tracking-tight text-blue-500 cursor-pointer"
               onClick={() => {
                 setPatient(null);
                 setSearch("");
@@ -85,36 +86,40 @@ export default function ClinicPage() {
 
           <form
             onSubmit={handleSubmit}
-            className={`relative flex items-center w-full px-5 py-3 rounded-full border border-gray-300 bg-background ${
-              patient ? "max-w-3xl" : ""
-            }`}
+            className="flex items-center w-full px-4 py-3 rounded-full border border-muted bg-background shadow-sm focus-within:shadow-md transition"
           >
             <FontAwesomeIcon
               icon={faSearch}
-              className="text-gray-400 mr-3 h-[18px] w-[18px]"
+              className="text-muted-foreground mr-3 h-[16px] w-[16px]"
             />
 
             <input
               type="text"
-              placeholder="Enter Patient ID"
-              className="flex-grow outline-none bg-transparent text-base"
+              placeholder="Enter Patient Access Code"
+              className="flex-grow outline-none bg-transparent text-sm sm:text-base"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
 
             <button
               type="submit"
-              className="ml-3 text-blue-500 hover:text-blue-600"
+              className="ml-3 text-blue-500 hover:text-blue-600 transition"
             >
               <FontAwesomeIcon icon={faSearch} />
             </button>
           </form>
         </div>
 
-        {error && <div className="text-red-500 mt-4 font-medium">{error}</div>}
+        {/* Error */}
+        {error && (
+          <div className="text-red-500 mt-4 text-sm font-medium text-center">
+            {error}
+          </div>
+        )}
 
+        {/* Patient Data */}
         {patient && (
-          <div className="w-full max-w-6xl px-4 mt-6 pb-12">
+          <div className="w-full max-w-5xl mt-6 pb-12">
             <PatientInfoDashboard patient={patient} />
           </div>
         )}

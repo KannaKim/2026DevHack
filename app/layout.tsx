@@ -1,4 +1,5 @@
 import "./globals.css";
+import RouteLoader from "@/components/RouteLoader";
 
 export default function RootLayout({
   children,
@@ -6,8 +7,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html>
+      <body>
+        <RouteLoader />
+        {children}
+      </body>
     </html>
   );
 }
