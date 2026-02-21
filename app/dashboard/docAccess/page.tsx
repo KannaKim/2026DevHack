@@ -29,7 +29,7 @@ export default function DoctorAccessPage() {
     gsap.fromTo(
       cardRef.current,
       { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
     );
   }, []);
 
@@ -71,7 +71,7 @@ export default function DoctorAccessPage() {
       gsap.fromTo(
         tokenBoxRef.current,
         { opacity: 0, scale: 0.9 },
-        { opacity: 1, scale: 1, duration: 0.5, ease: "back.out" },
+        { opacity: 1, scale: 1, duration: 0.5, ease: "back.out" }
       );
     } finally {
       setLoading(false);
@@ -82,32 +82,28 @@ export default function DoctorAccessPage() {
     if (!token) return;
 
     setLoading(true);
+    const tokenToRevoke = token;
 
     try {
       const res = await fetch("/api/access/revoke", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: token.trim() }),
+        body: JSON.stringify({ token: tokenToRevoke.trim() }),
         credentials: "include",
       });
 
-      if (!res.ok) return;
+      if (!res.ok) {
+        setLoading(false);
+        return;
+      }
 
-      // Animate token removal
-      gsap.to(tokenBoxRef.current, {
-        opacity: 0,
-        scale: 0.9,
-        duration: 0.4,
-        onComplete: () => {
-          setToken(null);
-          setExpiresAt(null);
-          localStorage.removeItem(ACCESS_TOKEN_KEY);
-          localStorage.removeItem(ACCESS_EXPIRES_KEY);
-          setLoading(false);
-        },
-      });
+      setToken(null);
+      setExpiresAt(null);
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(ACCESS_EXPIRES_KEY);
     } catch (error) {
       console.error(error);
+    } finally {
       setLoading(false);
     }
   };
